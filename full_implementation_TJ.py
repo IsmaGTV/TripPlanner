@@ -5,7 +5,6 @@ import datetime
 from datetime import date, timedelta
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Here we create a side bar, apart from the main user interface, which will allow the user to put their API keys there, without coveing the main app page.
 with st.sidebar:
@@ -385,43 +384,6 @@ def fetch_historical_flight_prices(origin_code, destination_code, AVIATIONSTACK_
     }
     response = requests.get(url, params=params)
     return response.json()
-
-if submitted:
-    price_data = fetch_historical_flight_prices(origin_code, destination_code, AVIATIONSTACK_API_KEY)
-
-    past_prices = []
-    past_dates = []
-    
-    for flight in price_data.get("data", []):
-        if "price" in flight and "date" in flight:
-            past_prices.append(flight["price"])
-            past_dates.append(flight["date"])
-
-    if past_prices:
-        st.subheader("Flight Price Trend Over Last 5 Years")
-
-        # Plotting the data
-        fig, ax = plt.subplots(figsize=(10, 4))
-        ax.plot(past_dates, past_prices, marker="o", linestyle="-", color="b")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Price (€)")
-        ax.set_title(f"Price Trend for {origin_code} → {destination_code}")
-        ax.tick_params(axis="x", rotation=45)
-
-        st.pyplot(fig)
-
-        # Short summary
-        current_flight_price = past_prices[-1] if past_prices else None
-        historical_avg_price = sum(past_prices) / len(past_prices) if past_prices else None
-
-        if current_flight_price and historical_avg_price:
-            if current_flight_price < historical_avg_price:
-                st.success(f"✅ The current price (€{current_flight_price}) is **below average** historical prices (€{historical_avg_price:.2f}).")
-            else:
-                st.warning(f"⚠️ The current price (€{current_flight_price}) is **above average** historical prices (€{historical_avg_price:.2f}).")
-    else:
-        st.warning("No historical flight price data.")
-
 
 
 # Creating the function that will send an email (POST request), and setting its parameters (API url, subject, content, subject, etc)
